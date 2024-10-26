@@ -1,5 +1,7 @@
 # Python-and-SQL-Intro-Project
 
+Topic: Psychological Data Visualisation with Simple ChatBot
+
 Team members:
 - Aliaksandra Labko
 - Weronika Mądro
