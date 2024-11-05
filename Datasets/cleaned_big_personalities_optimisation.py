@@ -55,4 +55,8 @@ columns_to_remove_5 = ['Country', 'Human Development Index (HDI) ', 'Life expect
 
 df.drop(columns=columns_to_remove_5, inplace=True)
 
+df.drop(columns=['country'], inplace=True)
+
+df = df.rename(columns={'English short name lower case': 'Country', 'Alpha-3 code': 'Country Code', 'id': 'ID', 'question_id': 'Question ID', 'answer': 'Answer', 'Factor': 'Factor', 'lat_appx_lots_of_err': 'Latitude', 'long_appx_lots_of_err': 'Longitude', 'HDI rank': 'HDI Rank'})
+
 df.to_csv('optimised_big_personalities_dataset.csv', index=False)
