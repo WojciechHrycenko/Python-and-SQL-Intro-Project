@@ -17,13 +17,15 @@ columns_to_remove = [
     'AGR9_E', 'AGR10_E', 'CSN1_E', 'CSN2_E', 'CSN3_E', 'CSN4_E', 'CSN5_E', 
     'CSN6_E', 'CSN7_E', 'CSN8_E', 'CSN9_E', 'CSN10_E', 'OPN1_E', 'OPN2_E', 
     'OPN3_E', 'OPN4_E', 'OPN5_E', 'OPN6_E', 'OPN7_E', 'OPN8_E', 'OPN9_E', 
-    'OPN10_E'
+    'OPN10_E', 'EXT6', 'EXT7', 'EXT8', 'EXT9', 'EXT10', 'EST6', 'EST7', 'EST8', 'EST9', 'EST10', 
+    'AGR6', 'AGR7', 'AGR8', 'AGR9', 'AGR10', 'CSN6', 'CSN7', 'CSN8', 'CSN9', 'CSN10', 
+    'OPN6', 'OPN7', 'OPN8', 'OPN9', 'OPN10'
 ]
 df.drop(columns=columns_to_remove, inplace=True)
 # Filtrowanie danych, aby zawierały tylko wybrane kraje
 df_filtered = df[(df['country'].isin(selected_countries)) & (df['IPC'] == 1)]
 # Przefiltruj dane, aby zachować maksymalnie 1000 losowo wybranych wierszy dla każdego kraju
-df_sampled = df_filtered.groupby('country').apply(lambda x: x.sample(285))
+df_sampled = df_filtered.groupby('country').apply(lambda x: x.sample(270))
 # Zapisz przefiltrowane dane do nowego pliku CSV
 df_sampled.to_csv('cleaned_big_personalities_dataset.csv', index=False)
 print("Nowy plik został utworzony z maksymalnie 285 losowymi wierszami dla każdego wybranego kraju.")

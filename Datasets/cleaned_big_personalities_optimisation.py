@@ -10,11 +10,11 @@ columns = ['id'] + list(df.columns[:-1])
 df = df[columns]
 
 columns_to_melt = [
-    'EXT1', 'EXT2', 'EXT3', 'EXT4', 'EXT5', 'EXT6', 'EXT7', 'EXT8', 'EXT9', 'EXT10', 
-    'EST1', 'EST2', 'EST3', 'EST4', 'EST5', 'EST6', 'EST7', 'EST8', 'EST9', 'EST10', 
-    'AGR1', 'AGR2', 'AGR3', 'AGR4', 'AGR5', 'AGR6', 'AGR7', 'AGR8', 'AGR9', 'AGR10', 
-    'CSN1', 'CSN2', 'CSN3', 'CSN4', 'CSN5', 'CSN6', 'CSN7', 'CSN8', 'CSN9', 'CSN10', 
-    'OPN1', 'OPN2', 'OPN3', 'OPN4', 'OPN5', 'OPN6', 'OPN7', 'OPN8', 'OPN9', 'OPN10'
+    'EXT1', 'EXT2', 'EXT3', 'EXT4', 'EXT5',
+    'EST1', 'EST2', 'EST3', 'EST4', 'EST5',
+    'AGR1', 'AGR2', 'AGR3', 'AGR4', 'AGR5',
+    'CSN1', 'CSN2', 'CSN3', 'CSN4', 'CSN5', 
+    'OPN1', 'OPN2', 'OPN3', 'OPN4', 'OPN5'
 ]
 
 df = pd.melt(df, id_vars = ["id", "dateload","screenw","screenh","introelapse","testelapse","endelapse","IPC","country","lat_appx_lots_of_err","long_appx_lots_of_err"], value_vars=columns_to_melt, var_name='question_id', value_name='answer')
