@@ -4,6 +4,7 @@ import plotly_express as px
 import sqlite3
 from Database_Preparation import q_ids, region_llist
 import statistics as stat
+import plotly.graph_objects as go
 
 # Connect to SQLite database
 conn = sqlite3.connect('personality_database.db')
@@ -19,7 +20,7 @@ st.title("Big Personalities Analysis")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation - select the data visualisation you want to see")
-page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Questions-Answers distribution across the world"))
+page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Questions-Answers distribution across the world", "Radar Chart of Five Personality Factors"))
 
 # Logic to display content based on the sidebar selection
 if page == "Home":
@@ -68,6 +69,107 @@ elif page == "Questions-Answers distribution across the world":
     st.plotly_chart(fig)
 # ***********************************************
 
+# Radar / Pentagram Chart - Wojtek ****************************************************
+elif page == "Radar Chart of Five Personality Factors":
+
+    # Grouping data by Region and Country
+    grouped_data = factors.groupby(["Region", "Country"]).agg({
+        'Extroversion': 'mean',
+        'Emotional Stability': 'mean',
+        'Agreeablness': 'mean',
+        'Conscientiousness': 'mean',
+        'Intellect/Imagination': 'mean'
+    }).reset_index()
+
+    # Filtering data based on user selection
+    region_list = grouped_data['Region'].unique()
+    selected_region = st.selectbox("Choose region", options=["All Regions"] + list(region_list))
+
+    if selected_region == "All Regions":
+        country_list = grouped_data['Country'].unique()
+    else:
+        country_list = grouped_data[grouped_data['Region'] == selected_region]['Country'].unique()
+    selected_country = st.selectbox("Choose country", options=["All Countries"] + list(country_list))
+
+    if selected_region == "All Regions" and selected_country == "All Countries":
+        filtered_data = grouped_data
+    elif selected_region != "All Regions" and selected_country == "All Countries":
+        filtered_data = grouped_data[grouped_data['Region'] == selected_region]
+    elif selected_region == "All Regions" and selected_country != "All Countries":
+        filtered_data = grouped_data[grouped_data['Country'] == selected_country]
+    else:
+        filtered_data = grouped_data[(grouped_data['Region'] == selected_region) & (grouped_data['Country'] == selected_country)]
+
+# If "All Regions" and "All Countries" is selected, plot all countries
+    if selected_region == "All Regions" and selected_country == "All Countries":
+        fig = go.Figure()
+
+        # Loop through all rows of filtered data and plot each country's radar chart
+        for index, row in filtered_data.iterrows():
+            personality_values = [
+                row['Extroversion'],
+                row['Emotional Stability'],
+                row['Agreeablness'],
+                row['Conscientiousness'],
+                row['Intellect/Imagination']
+            ]
+            personality_labels = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
+
+            fig.add_trace(go.Scatterpolar(
+                r=personality_values,
+                theta=personality_labels,
+                fill='toself',
+                name=f"{row['Country']} ({row['Region']})"
+            ))
+
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 1]
+                )
+            ),
+            title="Radar Chart for All Countries and Regions",
+            showlegend=True
+        )
+
+    else:
+        # Selecting just the first row if region and country are specific
+        selected_row = filtered_data.iloc[0]
+
+        # Personalities values
+        personality_values = [
+            selected_row['Extroversion'],
+            selected_row['Emotional Stability'],
+            selected_row['Agreeablness'],
+            selected_row['Conscientiousness'],
+            selected_row['Intellect/Imagination']
+        ]
+
+        # Personalities labels for the radar chart
+        personality_labels = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
+
+        # Create a radar chart for the selected data
+        fig = go.Figure(data=go.Scatterpolar(
+            r=personality_values,
+            theta=personality_labels,
+            fill='toself',
+            name=selected_row['Country']
+        ))
+
+        fig.update_layout(
+            polar=dict(
+                radialaxis=dict(
+                    visible=True,
+                    range=[0, 1]
+                )
+            ),
+            title=f"Radar Chart for {selected_row['Country']} in {selected_row['Region']}",
+            showlegend=False
+        )
+
+    st.plotly_chart(fig)
+# ***********************************************
 
 # Close the SQLite connection
 conn.close()
