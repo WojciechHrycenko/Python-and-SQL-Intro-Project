@@ -5,8 +5,6 @@ import sqlite3
 from Database_Preparation import q_ids, region_llist
 import statistics as stat
 import plotly.graph_objects as go
-
-
 import numpy as np
 import plotly.express as px
 
@@ -189,6 +187,7 @@ elif page == "Radar Chart of Five Personality Factors":
 # GENERAL COMPARISON - Filip ****************************************************
 # Code written with help of AI - chatgpt precisely
 # To be cleaned & and translated to english and verified
+# GENERAL COMPARISON - Filip ****************************************************
 elif page == "General Comparison":
     st.header("General Comparison of Personality Traits Across Countries and Regions")
 
@@ -260,27 +259,27 @@ elif page == "General Comparison":
             merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")
         ) * merged_data["Trait_Level"]
 
+        # Dodanie dodatkowej metryki: Mean_Response podzielone przez sumę odpowiedzi dla cechy
+        merged_data["Contribution"] = (merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")) * merged_data["Trait_Level"]
+
+
         # Dodanie pełnej treści pytań do danych
         question_map = {q.split(": ")[0]: q.split(": ")[1] for q in q_ids}  # Mapowanie kodów pytań na pełne opisy
         merged_data["Full_Question"] = merged_data["Question"].map(question_map)  # Mapowanie pełnych treści pytań
 
-        # Przygotowanie kolorów dla cech
+        # Przygotowanie jednolitych kolorów dla cech
         trait_colors = {
-            "EXT": px.colors.sequential.Blues,
-            "AGR": px.colors.sequential.Greens,
-            "CSN": px.colors.sequential.Oranges,
-            "EST": px.colors.sequential.Reds,
-            "OPN": px.colors.sequential.Purples
+            "EXT": "blue",
+            "AGR": "green",
+            "CSN": "orange",
+            "EST": "red",
+            "OPN": "purple"
         }
 
         # Generowanie danych do wykresu stacked bar plot
         stacked_bar_data = []
         annotations = []  # Lista na wartości cech nad słupkami
         for trait, group in merged_data.groupby("Trait"):
-            n_questions = len(group)
-            base_colors = trait_colors[trait]  # Podstawowa paleta kolorów
-            shades = generate_shades(base_colors, n_questions)  # Dynamiczne generowanie odcieni
-
             for i, (index, row) in enumerate(group.iterrows()):
                 # Dodawanie barów do wykresu
                 stacked_bar_data.append(
@@ -290,11 +289,13 @@ elif page == "General Comparison":
                         text=row["Question"],  # Kod pytania w słupku
                         textposition="inside",  # Kod pytania wyświetlany w środku słupka
                         textfont=dict(size=10, color="black"),  # Jednolity styl dla wszystkich kodów pytań
-                        marker_color=shades[i],  # Dynamiczne dopasowanie kolorów
+                        marker_color=trait_colors[trait],  # Ujednolicony kolor dla cechy
+                        marker_line=dict(width=1, color="black"),  # Dodanie linii rozdzielających poziomy
                         hovertemplate=f"<b>Trait:</b> {trait}<br>"  # Wyświetlenie nazwy cechy
                                       f"<b>Question Code:</b> {row['Question']}<br>"  # Kod pytania
                                       f"<b>Full Question:</b> {row['Full_Question']}<br>"  # Pełna treść pytania
-                                      f"<b>Mean Response:</b> {row['Mean_Response']:.2f}<extra></extra>",  # Średnia odpowiedź
+                                      f"<b>Mean Response:</b> {row['Mean_Response']:.2f}<br>"  # Średnia odpowiedź
+                                      f"<b>Contribution:</b> {row['Contribution']:.2f}<extra></extra>",  # Normalizowany udział
                     )
                 )
 
@@ -328,6 +329,7 @@ elif page == "General Comparison":
 
 
 
+
 # ***********************************************
 
 
@@ -335,3 +337,4 @@ elif page == "General Comparison":
 
 # Close the SQLite connection
 conn.close()
+
