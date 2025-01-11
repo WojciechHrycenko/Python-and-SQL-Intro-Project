@@ -5,19 +5,7 @@ import sqlite3
 from Database_Preparation import q_ids, region_llist
 import statistics as stat
 import plotly.graph_objects as go
-import numpy as np
-import plotly.express as px
-
-# Funkcja do generowania odcieni w razie potrzeby - FILIP with help of AI
-# To be cleaned & and translated to english and verified
-def generate_shades(base_colors, n_questions):
-    if len(base_colors) >= n_questions:
-        return base_colors[:n_questions]
-    else:
-        # Interpolacja kolorów, jeśli brakuje odcieni
-        color_array = np.linspace(0, 1, n_questions)
-        return px.colors.sample_colorscale(base_colors, color_array)
-
+from plotly.colors import qualitative
 
 # Connect to SQLite database
 conn = sqlite3.connect('personality_database.db')
@@ -185,22 +173,16 @@ elif page == "Radar Chart of Five Personality Factors":
     st.plotly_chart(fig)
 
 # GENERAL COMPARISON - Filip ****************************************************
-# Code written with help of AI - chatgpt precisely
-# To be cleaned & and translated to english and verified
-# GENERAL COMPARISON - Filip ****************************************************
+# Code written with help of AI 
+
 elif page == "General Comparison":
-    st.header("General Comparison of Personality Traits Across Countries and Regions")
+    st.header("General Comparison of Personality Traits & Survey Answers within Coutntries and Regions")
 
-    # Pobranie danych z bazy (na początku)
-    questions = pd.read_sql_query("SELECT * FROM Questions;", conn)
-    factors = pd.read_sql_query("SELECT * FROM Factors;", conn)
-
-    # Wybór regionu i kraju
     region_list = ["All Regions"] + sorted(questions["Region"].fillna("Unknown").unique())
     selected_region = st.selectbox("Choose a Region", options=region_list)
 
     if selected_region == "All Regions":
-        country_list = ["All Countries"] + sorted(questions["Country"].fillna("Unknown").unique())
+        country_list = ["All Countries"] + sorted(questions["Country"].fillna("Unknown").unique()) #had a trouble with NA values/ AI help
     else:
         country_list = ["All Countries"] + sorted(
             questions[questions["Region"] == selected_region]["Country"].fillna("Unknown").unique()
@@ -269,11 +251,11 @@ elif page == "General Comparison":
 
         # Przygotowanie jednolitych kolorów dla cech
         trait_colors = {
-            "EXT": "blue",
-            "AGR": "green",
-            "CSN": "orange",
-            "EST": "red",
-            "OPN": "purple"
+            "EXT": qualitative.Pastel1[0],  
+            "AGR": qualitative.Pastel1[1],  
+            "CSN": qualitative.Pastel1[2],  
+            "EST": qualitative.Pastel1[3],  
+            "OPN": qualitative.Pastel1[4] 
         }
 
         # Generowanie danych do wykresu stacked bar plot
@@ -294,7 +276,7 @@ elif page == "General Comparison":
                         hovertemplate=f"<b>Trait:</b> {trait}<br>"  # Wyświetlenie nazwy cechy
                                       f"<b>Question Code:</b> {row['Question']}<br>"  # Kod pytania
                                       f"<b>Full Question:</b> {row['Full_Question']}<br>"  # Pełna treść pytania
-                                      f"<b>Mean Response:</b> {row['Mean_Response']:.2f}<br>"  # Średnia odpowiedź
+                                      f"<b>Mean Response:</b> {row['Mean_Response']:.2f}/5<br>"  # Średnia odpowiedź
                                       f"<b>Contribution:</b> {row['Contribution']:.2f}<extra></extra>",  # Normalizowany udział
                     )
                 )
