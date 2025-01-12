@@ -32,6 +32,49 @@ elif page == "Data Overview":
              "link to Kaggle?")
 
 # Place to add content to different pages:
+# Region/country based personalities histogram - Weronika **************
+elif page == "Region/Country Based Personalities Histogram - Weronika":
+    # Group data by Region and Country
+    grouped_factors = factors.groupby(['Region', 'Country']).mean().reset_index()
+
+    # Add selectors for Region and Country
+    region_options = grouped_factors['Region'].unique()
+    selected_region = st.selectbox("Choose a region", options=["All Regions"] + list(region_options))
+
+    if selected_region == "All Regions":
+        country_options = grouped_factors['Country'].unique()
+    else:
+        country_options = grouped_factors[grouped_factors['Region'] == selected_region]['Country'].unique()
+    selected_country = st.selectbox("Choose a country", options=["All Countries"] + list(country_options))
+
+    # Filter the data based on selection
+    if selected_region == "All Regions" and selected_country == "All Countries":
+        filtered_factors = factors
+    elif selected_region != "All Regions" and selected_country == "All Countries":
+        filtered_factors = factors[factors['Region'] == selected_region]
+    elif selected_region == "All Regions" and selected_country != "All Countries":
+        filtered_factors = factors[factors['Country'] == selected_country]
+    else:
+        filtered_factors = factors[(factors['Region'] == selected_region) & (factors['Country'] == selected_country)]
+
+    # Calculate the percentage of traits for the filtered data
+    personality_traits = ['Extroversion', 'Emotional Stability', 'Agreeabness', 'Conscientiousness', 'Intellect/Imagination']
+    trait_means = filtered_factors[personality_traits].mean()
+
+    # Create a bar chart using Plotly Express
+    fig = px.bar(
+        x=personality_traits,
+        y=trait_means.values,
+        labels={'x': 'Personality Trait', 'y': 'Average Score'},
+        title=f"Average Personality Traits for {selected_country} in {selected_region}"
+    )
+
+    # Show the chart in the Streamlit app
+    st.plotly_chart(fig)
+
+# Structure of answers - Weronika **************************************
+
+
 # Histogram - Dawid ****************************************************
 elif page == "Questions-Answers distribution across the world":
     selected_option = st.selectbox(
