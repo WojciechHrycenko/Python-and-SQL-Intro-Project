@@ -2,6 +2,7 @@
 import sqlite3
 import pandas as pd
 
+
 # List of CSV files and corresponding table names
 csv_files = ['Datasets/optimized_questions.csv', 'Datasets/factors_dataset.csv']
 table_names = ['Questions', 'Factors']
@@ -22,5 +23,3 @@ try:
 finally:
     # Close the connection
     conn.close()
-
-
