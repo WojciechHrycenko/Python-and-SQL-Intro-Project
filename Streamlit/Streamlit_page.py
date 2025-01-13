@@ -22,7 +22,7 @@ st.title("Big Personalities Analysis")
 # Sidebar for navigation
 st.sidebar.title("Navigation - select the data visualisation you want to see")
 page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Region or country-based personalities", "Structure of answers", 
-                                          "Questions-Answers distribution across the world", "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth map"))
+                                          "Questions-Answers distribution across the world", "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth Map"))
 
 
 # Logic to display content based on the sidebar selection
@@ -449,7 +449,7 @@ elif page == "General Comparison":
 
 
 # Density map of factors - Sasha ****************************************************
-elif page == "Choropleth map":
+elif page == "Choropleth Map":
     st.markdown("### Choropleth map of personality factors, HDI Rank and Happiness Rank")
 
     scaled_factors = factors.copy()
