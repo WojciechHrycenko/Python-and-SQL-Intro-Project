@@ -269,16 +269,35 @@ elif page == "Radar Chart of Five Personality Factors":
                 name=f"{row['Country']} ({row['Region']})"
             ))
 
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 1]
+            fig.update_traces(
+                hovertemplate="Trait Value: %{r}<br>Personality Trait: %{theta}<extra></extra>"
+            )
+
+            fig.update_layout(
+                polar=dict(
+                    radialaxis=dict(
+                        visible=True,
+                        range=[0, 1],
+                        tickfont=dict(color="black")
+                    ),
+                    angularaxis=dict(
+                        tickmode='array',
+                        tickvals=[0, 1, 2, 3, 4],
+                        ticktext=personality_labels
+                    )
+                ),
+                title="Radar Chart for All Countries and Regions",
+                showlegend=True,
+                legend=dict(
+                    x=1.1,
+                    y=0.5,
+                    xanchor="left",
+                    yanchor="middle",
+                    orientation="v",
+                    font=dict(size=12)
                 )
-            ),
-            title="Radar Chart for All Countries and Regions",
-            showlegend=True
-        )
+            )
+
 
     else:
         # Selecting just the first row if region and country are specific
@@ -304,15 +323,25 @@ elif page == "Radar Chart of Five Personality Factors":
             name=selected_row['Country']
         ))
 
+        fig.update_traces(
+            hovertemplate="Trait Value in 0-1 Scale: %{r}<br>Personality Trait: %{theta}<extra></extra>"
+        )
+
         fig.update_layout(
             polar=dict(
                 radialaxis=dict(
                     visible=True,
-                    range=[0, 1]
+                    range=[0, 1],
+                    tickfont=dict(color="black")
+                ),
+                angularaxis=dict(
+                    tickmode='array',
+                    tickvals=[0, 1, 2, 3, 4],
+                    ticktext=personality_labels
                 )
             ),
-            title=f"Radar Chart for {selected_row['Country']} in {selected_row['Region']}",
-            showlegend=False
+            title="Radar Chart for All Countries and Regions",
+            showlegend=True
         )
 
     st.plotly_chart(fig)
