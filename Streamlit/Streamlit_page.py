@@ -22,7 +22,7 @@ st.title("Big Personalities Analysis")
 # Sidebar for navigation
 st.sidebar.title("Navigation - select the data visualisation you want to see")
 page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Region or country-based personalities", "Structure of answers", 
-                                          "Questions-Answers distribution across the world", "Radar Chart of Five Personality Factors", "General Comparison"))
+                                          "Questions-Answers distribution across the world", "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth map"))
 
 
 # Logic to display content based on the sidebar selection
