@@ -274,18 +274,18 @@ elif page == "Radar Chart of Five Personality Factors":
 elif page == "General Comparison":
     st.header("General Comparison of Personality Traits & Survey Answers within Coutntries and Regions")
 
-    region_list = ["All Regions"] + sorted(questions["Region"].fillna("Unknown").unique())
-    selected_region = st.selectbox("Choose a Region", options=region_list)
+    region_list = ["All Regions"] + sorted(questions["Region"].fillna("Unknown").unique())# alphabetical order/NaN handling
+    selected_region = st.selectbox("Choose a Region", options=region_list) 
 
     if selected_region == "All Regions":
-        country_list = ["All Countries"] + sorted(questions["Country"].fillna("Unknown").unique()) #had a trouble with NA values/ AI help
+        country_list = ["All Countries"] + sorted(questions["Country"].fillna("Unknown").unique()) #had a trouble with NA values/ AI helped me to assign "Unknown" to them
     else:
         country_list = ["All Countries"] + sorted(
             questions[questions["Region"] == selected_region]["Country"].fillna("Unknown").unique()
         )
     selected_country = st.selectbox("Choose a Country", options=country_list)
 
-    # Filtrowanie danych w Pythonie
+    # Filtering data based on user selection
     if selected_region == "All Regions" and selected_country == "All Countries":
         filtered_questions = questions
         filtered_factors = factors
@@ -303,17 +303,17 @@ elif page == "General Comparison":
             (factors["Region"] == selected_region) & (factors["Country"] == selected_country)
         ]
 
-    # Sprawdzenie, czy mamy dane po filtrowaniu
+    # Error handling if no data is available
     if filtered_questions.empty or filtered_factors.empty:
         st.error("No data available for the selected region or country. Please choose different filters.")
     else:
-        # Obliczanie średnich odpowiedzi na pytania
+        # mean response for each question
         question_columns = [col for col in filtered_questions.columns if col.startswith(("EXT", "AGR", "CSN", "EST", "OPN"))]
         question_means = filtered_questions[question_columns].mean().reset_index()
         question_means.columns = ["Question", "Mean_Response"]
         question_means["Trait"] = question_means["Question"].str[:3]
 
-        # Obliczanie średnich wartości cech osobowości
+        # mean trait level for each trait
         trait_means = filtered_factors[[
             "Extroversion", "Emotional Stability", "Agreeablness", 
             "Conscientiousness", "Intellect/Imagination"
@@ -329,23 +329,23 @@ elif page == "General Comparison":
         }
         trait_means["Trait"] = trait_means["Trait"].map(trait_map)
 
-        # Łączenie cech z pytaniami
+        # merging trait means with question means
         merged_data = question_means.merge(trait_means, on="Trait")
 
-        # Skalowanie odpowiedzi na pytania w ramach danej cechy
+        # Scaling the mean response based on trait level for stacked bar plot purposes
         merged_data["Scaled_Response"] = (
             merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")
         ) * merged_data["Trait_Level"]
 
-        # Dodanie dodatkowej metryki: Mean_Response podzielone przez sumę odpowiedzi dla cechy
+        # Contributions
         merged_data["Contribution"] = (merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")) * merged_data["Trait_Level"]
 
 
-        # Dodanie pełnej treści pytań do danych
-        question_map = {q.split(": ")[0]: q.split(": ")[1] for q in q_ids}  # Mapowanie kodów pytań na pełne opisy
-        merged_data["Full_Question"] = merged_data["Question"].map(question_map)  # Mapowanie pełnych treści pytań
+        # full question text
+        question_map = {q.split(": ")[0]: q.split(": ")[1] for q in q_ids}  #Dictionary comprehensions in q_ids list
+        merged_data["Full_Question"] = merged_data["Question"].map(question_map)  
 
-        # Przygotowanie jednolitych kolorów dla cech
+        # pastel colors for each trait
         trait_colors = {
             "EXT": qualitative.Pastel1[0],  
             "AGR": qualitative.Pastel1[1],  
@@ -354,54 +354,51 @@ elif page == "General Comparison":
             "OPN": qualitative.Pastel1[4] 
         }
 
-        # Generowanie danych do wykresu stacked bar plot
+        # plotting the stacked bar plot
         stacked_bar_data = []
-        annotations = []  # Lista na wartości cech nad słupkami
+        annotations = []  # list for annotations
         for trait, group in merged_data.groupby("Trait"):
             for i, (index, row) in enumerate(group.iterrows()):
-                # Dodawanie barów do wykresu
+                
                 stacked_bar_data.append(
                     go.Bar(
                         x=[trait],
                         y=[row["Scaled_Response"]],
-                        text=row["Question"],  # Kod pytania w słupku
-                        textposition="inside",  # Kod pytania wyświetlany w środku słupka
-                        textfont=dict(size=10, color="black"),  # Jednolity styl dla wszystkich kodów pytań
-                        marker_color=trait_colors[trait],  # Ujednolicony kolor dla cechy
-                        marker_line=dict(width=1, color="black"),  # Dodanie linii rozdzielających poziomy
-                        hovertemplate=f"<b>Trait:</b> {trait}<br>"  # Wyświetlenie nazwy cechy
-                                      f"<b>Question Code:</b> {row['Question']}<br>"  # Kod pytania
-                                      f"<b>Full Question:</b> {row['Full_Question']}<br>"  # Pełna treść pytania
-                                      f"<b>Mean Response:</b> {row['Mean_Response']:.2f}/5<br>"  # Średnia odpowiedź
-                                      f"<b>Contribution:</b> {row['Contribution']:.2f}<extra></extra>",  # Normalizowany udział
+                        text=row["Question"],  
+                        textposition="inside",  
+                        textfont=dict(size=8, color="black"),  
+                        marker_color=trait_colors[trait],  
+                        marker_line=dict(width=1, color="black"),  
+                        hovertemplate=
+                                      f"<b>Full Question:</b> {row['Full_Question']}<br>" 
+                                      f"<b>Mean Response:</b> {row['Mean_Response']:.2f}/5<br>"  
+                                      f"<b>Contribution:</b> {row['Contribution']:.2f}<extra></extra>",  
                     )
                 )
 
-            # Dodanie wartości cechy nad słupkiem
-            trait_level = group["Trait_Level"].iloc[0]  # Wartość cechy
+            trait_level = group["Trait_Level"].iloc[0] 
             annotations.append(
                 dict(
-                    x=trait,  # Pozycja na osi X
-                    y=group["Scaled_Response"].sum() + 0.05,  # Pozycja wyżej nad słupkiem
-                    text=f"{trait_level:.3f}",  # Wartość cechy (3 miejsca po przecinku)
+                    x=trait,  
+                    y=group["Scaled_Response"].sum() + 0.05,
+                    text=f"{trait_level:.3f}",  
                     showarrow=False,
-                    font=dict(size=12, color="white"),  # Styl tekstu: biały kolor
+                    font=dict(size=12, color="white"), 
                 )
             )
 
-        # Tworzenie wykresu
         fig = go.Figure(data=stacked_bar_data)
         fig.update_layout(
             barmode="stack",
-            title="Comparison of Personality Traits",
+            title="How responses creates levels of traits",
             xaxis_title="Personality Traits",
             yaxis_title="Trait Level",
-            annotations=annotations,  # Dodanie wartości nad słupkami
+            annotations=annotations,  #labeling the trait levels
             hovermode="closest",
             showlegend=False
         )
 
-        # Wyświetlenie wykresu
+        # show the plot
         st.plotly_chart(fig)
 
 
