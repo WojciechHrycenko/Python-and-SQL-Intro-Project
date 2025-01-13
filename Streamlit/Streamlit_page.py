@@ -406,6 +406,57 @@ elif page == "General Comparison":
 
 
 
+# Density map of factors - Sasha ****************************************************
+elif page == "Choropleth map":
+    st.markdown("### Choropleth map of personality factors, HDI Rank and Happiness Rank")
+
+    scaled_factors = factors.copy()
+    scaled_factors[["Extroversion", "Emotional Stability", "Agreeablness", "Conscientiousness", "Intellect/Imagination"]] = scaled_factors[["Extroversion", "Emotional Stability", "Agreeablness", "Conscientiousness", "Intellect/Imagination"]] * 100
+    
+    grouped_factors = scaled_factors.pivot_table(
+    index="Country", 
+    values=["HDI rank", "Happiness Rank", "Extroversion", "Emotional Stability", "Agreeablness", "Conscientiousness", "Intellect/Imagination"]
+    )
+    grouped_factors_reset = grouped_factors.reset_index()  # Reset index so 'Country' is a column
+
+
+    available_factors = grouped_factors_reset.columns.tolist()  # Get all column names
+    available_factors.remove("Country")  # Remove 'Country' from the list of available factors
+    
+    selected_factor = st.selectbox(
+    "Choose factor or rank",
+    options=available_factors,
+    index=0
+    )
+    
+    
+    if selected_factor == "HDI rank" or selected_factor == "Happiness Rank":
+        fig_map = px.choropleth(
+        grouped_factors_reset,
+        locations= "Country",  
+        locationmode= "country names",  
+        color=selected_factor,  
+        color_continuous_scale=px.colors.sequential.Plasma,
+        title=f"{selected_factor} by country"
+        )
+    
+    else:
+        fig_map = px.choropleth(
+        grouped_factors_reset,
+        locations= "Country",
+        locationmode= "country names",
+        color=selected_factor,
+        color_continuous_scale=px.colors.sequential.Viridis,
+        title=f"{selected_factor} distribution by country"
+        )
+    
+
+    
+    
+    
+    st.plotly_chart(fig_map)
+
+
 
 
 # ***********************************************
