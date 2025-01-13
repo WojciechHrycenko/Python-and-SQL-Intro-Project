@@ -74,6 +74,10 @@ elif page == "Data Overview":
     - Geographic and global indices similar to `factors_dataset.csv`.
 
     💡 **Summary**: This file is similar to the initial dataset but with optimized and sampled questions. It includes detailed question-by-question responses for the Big Five personality traits.
+    
+    
+    #### **factors_dataset.csv** and **optimized_questions.csv** were merged using SQLite into a single database, which was utilized in the main and final Python script for the Streamlit page. 
+    
     """
     
     st.markdown(text)
