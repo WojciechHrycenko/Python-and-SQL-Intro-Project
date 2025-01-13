@@ -31,8 +31,53 @@ if page == "Home":
     st.write("Tutaj chatbot xd")
 elif page == "Data Overview":
     st.write("Here you can see an overview of the dataset.")
-    st.write("Description of the dataset, let's put link to .ipynb files with data cleaning, our github(?),"
-             "link to Kaggle?")
+    
+    text = """
+    ### Dataset Information
+
+    The initial dataset *('data-final.csv')* was taken from Kaggle: [link](https://www.kaggle.com/datasets/tunguz/big-five-personality-test).  
+    This dataset contained **1,015,342 questionnaire answers** (rows) collected online about Big Five personality traits, also known as the Five-Factor Model (FFM), which is a grouping for personality traits.
+
+    ### Data Transformation Process
+
+    The **'data-final.csv'** was transformed multiple times:  
+    1️⃣ **Reduce the number of rows**: Equal sampling was applied to make the dataset more consistent.  
+    2️⃣ **Optimize question answers**: Some questions were contradictory, so their values were reverted.  
+    3️⃣ **Summarize 50 columns**: Consolidated questions into five personality factors.  
+    4️⃣ **Additional data**: Added Happiness Rank, HDI Rank, Country Code, and Region.
+
+    After transforming *'data-final.csv'*, two files were created as outcomes:  
+    - **'factors_dataset.csv'**  
+    - **'optimized_questions.csv'**
+
+    ### File Details
+
+    #### 📁 **factors_dataset.csv**  
+    This file contains **13 columns**:  
+    - **id**: Unique identifier for each record.  
+    - **lat_appx_lots_of_err** & **long_appx_lots_of_err**: Approximate latitude and longitude of the respondent's location.  
+    - **Country**, **Country_Code**, **Region**: Geographic information about the respondent.  
+    - **Happiness Rank**: Respondent's country's rank in a happiness index.  
+    - **HDI Rank**: Human Development Index rank of the respondent's country.  
+    - **Extroversion**, **Emotional Stability**, **Agreeableness**, **Conscientiousness**, **Intellect/Imagination**: Scores on the Big Five personality traits.
+
+    💡 **Summary**: This file provides personality trait scores alongside geographic and global index information.
+
+    #### 📁 **optimized_questions.csv**  
+    This file contains **58 columns**:  
+    - **id**: Unique identifier for each record.  
+    - **EXT1 to EXT10**: Responses related to Extroversion.  
+    - **EST1 to EST10**: Responses related to Emotional Stability.  
+    - **AGR1 to AGR10**: Responses related to Agreeableness.  
+    - **CSN1 to CSN10**: Responses related to Conscientiousness.  
+    - **OPN1 to OPN10**: Responses related to Intellect/Imagination (Openness).  
+    - Geographic and global indices similar to `factors_dataset.csv`.
+
+    💡 **Summary**: This file is similar to the initial dataset but with optimized and sampled questions. It includes detailed question-by-question responses for the Big Five personality traits.
+    """
+    
+    st.markdown(text)
+
 
 # Place to add content to different pages:
 
