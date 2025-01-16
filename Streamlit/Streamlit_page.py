@@ -34,6 +34,7 @@ if page == "Home":
 elif page == "Data Overview":
     st.write("Here you can see an overview of the dataset.")
     
+    # AI help was used to modify variable 'text' to look better
     text = """
     ### Dataset Information
 
@@ -438,6 +439,7 @@ elif page == "General Comparison":
 
 
 # Density map of factors - Sasha ****************************************************
+## AI help was used to optimize the code 
 elif page == "Choropleth Map":
     st.markdown("### Choropleth map of personality factors, HDI Rank and Happiness Rank")
 
@@ -448,11 +450,13 @@ elif page == "Choropleth Map":
     index="Country", 
     values=["HDI rank", "Happiness Rank", "Extroversion", "Emotional Stability", "Agreeablness", "Conscientiousness", "Intellect/Imagination"]
     )
-    grouped_factors_reset = grouped_factors.reset_index()  # Reset index so 'Country' is a column
+    # Reset index so 'Country' is a column - AI helped to figure out this line of code
+    grouped_factors_reset = grouped_factors.reset_index()  
 
-
-    available_factors = grouped_factors_reset.columns.tolist()  # Get all column names
-    available_factors.remove("Country")  # Remove 'Country' from the list of available factors
+    # Get all column names
+    available_factors = grouped_factors_reset.columns.tolist()
+    # Remove 'Country' from the list of available factors
+    available_factors.remove("Country")  
     
     selected_factor = st.selectbox(
     "Choose factor or rank",
@@ -460,7 +464,7 @@ elif page == "Choropleth Map":
     index=0
     )
     
-    
+    # AI helped with how some variables should be written
     if selected_factor == "HDI rank" or selected_factor == "Happiness Rank":
         fig_map = px.choropleth(
         grouped_factors_reset,
