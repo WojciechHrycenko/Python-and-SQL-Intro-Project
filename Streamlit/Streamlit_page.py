@@ -125,7 +125,8 @@ elif page == "Questions-Answers distribution across the world":
 # ***********************************************
 
 # Radar / Pentagram Chart and Region/Country based histogram - Wojtek and Weronika ***********
-# Code written with help of AI 
+# Code written with help of AI
+# For the radar chart, I (Wojtek) was using AI mostly for solving some problems with the code, I was basing as much as possible on documentation of Plotly: https://plotly.com/python/polar-chart/.
 elif page == "Radar Chart of Five Personality Factors":
 
     # Grouping data by Region and Country
