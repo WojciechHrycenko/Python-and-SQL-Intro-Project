@@ -266,24 +266,24 @@ elif page == "Radar Chart of Five Personality Factors":
     st.plotly_chart(bar_fig)
     
 
-# General Comparison and structure of data - Filip and Weronika *********************************
-# Code written with help of AI 
+# General Comparison - Filip. Code written with help of AI - models: o1 and GPT-4o
+# Scope: i asked AI if i had trouble with running code properly and it helped me to solve the problems
 
 elif page == "General Comparison":
-    st.header("General Comparison of Personality Traits & Survey Answers within Coutntries and Regions")
+    st.header("General Comparison of Personality Factors & Survey Answers within Coutntries and Regions")
 
-    region_list = ["All Regions"] + sorted(questions["Region"].fillna("Unknown").unique())# alphabetical order/NaN handling
-    selected_region = st.selectbox("Choose a Region", options=region_list) 
+#region_llist got from database_preparation.py
+    selected_region = st.selectbox("Choose a Region", options=region_llist) 
 
     if selected_region == "All Regions":
-        country_list = ["All Countries"] + sorted(questions["Country"].fillna("Unknown").unique()) #had a trouble with NA values/ AI helped me to assign "Unknown" to them
+        country_list = ["All Countries"] + sorted(questions["Country"].unique()) 
     else:
         country_list = ["All Countries"] + sorted(
-            questions[questions["Region"] == selected_region]["Country"].fillna("Unknown").unique()
+            questions[questions["Region"] == selected_region]["Country"].unique()
         )
     selected_country = st.selectbox("Choose a Country", options=country_list)
 
-    # Filtering data based on user selection
+    # Filtering data (questions and factors) based on user selection. Checked with AI if all conditions are fullfiled as the if function is quite complex
     if selected_region == "All Regions" and selected_country == "All Countries":
         filtered_questions = questions
         filtered_factors = factors
@@ -309,42 +309,54 @@ elif page == "General Comparison":
         question_columns = [col for col in filtered_questions.columns if col.startswith(("EXT", "AGR", "CSN", "EST", "OPN"))]
         question_means = filtered_questions[question_columns].mean().reset_index()
         question_means.columns = ["Question", "Mean_Response"]
-        question_means["Trait"] = question_means["Question"].str[:3]
+        question_means["Factor"] = question_means["Question"].str[:3]
 
-        # Mean trait level for each trait
-        trait_means = filtered_factors[[
+        # Mean factor level for each factor
+        factor_means = filtered_factors[[
             "Extroversion", "Emotional Stability", "Agreeablness", 
             "Conscientiousness", "Intellect/Imagination"
         ]].mean().reset_index()
-        trait_means.columns = ["Trait", "Trait_Level"]
+        factor_means.columns = ["Factor", "Factor_Level"]
 
-        trait_map = {
+        factor_dict = {
             "Extroversion": "EXT",
             "Emotional Stability": "EST",
             "Agreeablness": "AGR",
             "Conscientiousness": "CSN",
             "Intellect/Imagination": "OPN"
         }
-        trait_means["Trait"] = trait_means["Trait"].map(trait_map)
+        factor_means["Factor"] = factor_means["Factor"].apply(lambda key: factor_dict[key])
 
-        # Merging trait means with question means
-        merged_data = question_means.merge(trait_means, on="Trait")
+        # Merging factor means with question means
+        merged_data = question_means.merge(factor_means, on="Factor")
 
-        # Scaling the mean response based on trait level for stacked bar plot purposes
+        # Scaling the mean response based on factor level for stacked bar plot purposes
         merged_data["Scaled_Response"] = (
-            merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")
-        ) * merged_data["Trait_Level"]
+            merged_data["Mean_Response"] / merged_data.groupby("Factor")["Mean_Response"].transform("sum")
+        ) * merged_data["Factor_Level"]
 
         # Contributions
-        merged_data["Contribution"] = (merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")) * merged_data["Trait_Level"]
-
+        merged_data["Contribution"] = (merged_data["Mean_Response"] / merged_data.groupby("Factor")["Mean_Response"].transform("sum")) * merged_data["Factor_Level"]
 
         # Full question text
-        question_map = {q.split(": ")[0]: q.split(": ")[1] for q in q_ids}  #Dictionary comprehensions in q_ids list
-        merged_data["Full_Question"] = merged_data["Question"].map(question_map)  
+        question_dict = dict(q.split(": ", 1) for q in q_ids)
+        merged_data["Full_Question"] = merged_data["Question"].apply(lambda key: question_dict.get(key))
+        
+        #AI suggested below to improve my but i didn't like it because i dont know map()
+        #question_map = {q.split(": ")[0]: q.split(": ")[1] for q in q_ids}  #Dictionary comprehensions in q_ids list
+        #merged_data["Full_Question"] = merged_data["Question"].map(question_map)  
 
-        # Pastel colors for each trait
-        trait_colors = {
+        # Pastel colors for each factor. AI suggested to use qulivative as i asked it to help me assign pastel colors
+        
+        #factor_colors = {
+         #   "EXT": "red",  
+         #   "AGR": "blue",  
+         #   "CSN": "green",  
+         #   "EST": "yellow",  
+         #   "OPN": "purple" 
+        #}
+        
+        factor_colors = {
             "EXT": qualitative.Pastel1[0],  
             "AGR": qualitative.Pastel1[1],  
             "CSN": qualitative.Pastel1[2],  
@@ -352,20 +364,22 @@ elif page == "General Comparison":
             "OPN": qualitative.Pastel1[4] 
         }
 
-        # Plotting the stacked bar plot
+        # Plotting the stacked bar plot. AI suggested to use go.Bar() as i asked it to help me with the plot. Asked him for marker_line sugggestion
+        #as i am new to plotly i also asked about adjusting features of the plot like hovertemplate, textposition, textfont and marker_color
+        #AI helped me with HTML part of hovertemplate
         stacked_bar_data = []
-        annotations = []  # list for annotations
-        for trait, group in merged_data.groupby("Trait"):
+        labels = []  
+        for factor, group in merged_data.groupby("Factor"):
             for i, (index, row) in enumerate(group.iterrows()):
                 
                 stacked_bar_data.append(
                     go.Bar(
-                        x=[trait],
+                        x=[factor],
                         y=[row["Scaled_Response"]],
                         text=row["Question"],  
                         textposition="inside",  
                         textfont=dict(size=8, color="black"),  
-                        marker_color=trait_colors[trait],  
+                        marker_color=factor_colors[factor],  
                         marker_line=dict(width=1, color="black"),  
                         hovertemplate=
                                       f"<b>Full Question:</b> {row['Full_Question']}<br>" 
@@ -374,12 +388,12 @@ elif page == "General Comparison":
                     )
                 )
 
-            trait_level = group["Trait_Level"].iloc[0] 
-            annotations.append(
+            factor_level = group["Factor_Level"].iloc[0] 
+            labels.append(
                 dict(
-                    x=trait,  
+                    x=factor,  
                     y=group["Scaled_Response"].sum() + 0.05,
-                    text=f"{trait_level:.3f}",  
+                    text=f"{factor_level:.3f}",  
                     showarrow=False,
                     font=dict(size=12, color="white"), 
                 )
@@ -388,10 +402,10 @@ elif page == "General Comparison":
         fig = go.Figure(data=stacked_bar_data)
         fig.update_layout(
             barmode="stack",
-            title="How responses creates levels of traits",
-            xaxis_title="Personality Traits",
-            yaxis_title="Trait Level",
-            annotations=annotations,  #labeling the trait levels
+            title="How responses creates levels of factor",
+            xaxis_title="Personality Factors",
+            yaxis_title="Factor Level",
+            annotations=labels,  #labeling the factor levels
             hovermode="closest",
             showlegend=False
         )
@@ -399,7 +413,7 @@ elif page == "General Comparison":
         # Show the plot
         st.plotly_chart(fig)
 
-# Pie Chart: Structure of Answers
+# Pie Chart: Structure of Answers - Weronia ****************************************************
 
         st.subheader("Structure of Answers")
 

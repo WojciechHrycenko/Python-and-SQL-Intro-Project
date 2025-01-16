@@ -51,7 +51,7 @@ q_ids = [
     "OPN10: I am full of ideas."
 ]
 # Way to extract the question id and have the possibility to filter it in a dataframe
-question_id = q_ids[2].split(":")
+question_id = q_ids[6].split(":")
 print(question_id)
 
 # List of regions + "All Regions" added at the beginning
