@@ -226,36 +226,55 @@ elif page == "Radar Chart of Five Personality Factors":
             selected_row['Intellect/Imagination']
         ]
 
-        personality_labels = ['Agreeablness', 'Conscientiousness', 'Emotional Stability', 'Extroversion', 'Intellect/Imagination']
+    # Personalities labels
+    personality_labels = ['Agreeablness', 'Conscientiousness', 'Emotional Stability', 'Extroversion', 'Intellect/Imagination']
 
-        # Creating a radar chart for the selected data
-        fig = go.Figure(data=go.Scatterpolar(
-            r=personality_values,
-            theta=personality_labels,
-            fill='toself',
-            name=selected_row['Country']
-        ))
+    # Check if all countries or a specific country is selected
+    if selected_country == "All Countries":
+        # Calculate the mean values for each of the 5 personality traits for the entire region
+        personality_values = filtered_data[personality_labels].mean().tolist()
+        region_name = filtered_data['Region'].iloc[0]  # Use the region name
+        fig_name = region_name
+    else:
+        # Selecting just the first row if region and country are specific
+        selected_row = filtered_data.iloc[0]
+        personality_values = [
+            selected_row['Agreeablness'],
+            selected_row['Conscientiousness'],
+            selected_row['Emotional Stability'],
+            selected_row['Extroversion'],
+            selected_row['Intellect/Imagination']
+        ]
+        fig_name = selected_row['Country']
 
-        fig.update_traces(
-            hovertemplate="Trait Value in 0-1 Scale: %{r}<br>Personality Trait: %{theta}<extra></extra>"
-        )
+    # Creating a radar chart for the selected data
+    fig = go.Figure(data=go.Scatterpolar(
+        r=personality_values,
+        theta=personality_labels,
+        fill='toself',
+        name=fig_name
+    ))
 
-        fig.update_layout(
-            polar=dict(
-                radialaxis=dict(
-                    visible=True,
-                    range=[0, 1],
-                    tickfont=dict(color="black")
-                ),
-                angularaxis=dict(
-                    tickmode='array',
-                    tickvals=[0, 1, 2, 3, 4],
-                    ticktext=personality_labels
-                )
+    fig.update_traces(
+        hovertemplate="Trait Value in 0-1 Scale: %{r}<br>Personality Trait: %{theta}<extra></extra>"
+    )
+
+    fig.update_layout(
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 1],
+                tickfont=dict(color="black")
             ),
-            title="Radar Chart for All Countries and Regions",
-            showlegend=True
-        )
+            angularaxis=dict(
+                tickmode='array',
+                tickvals=[0, 1, 2, 3, 4],
+                ticktext=personality_labels
+            )
+        ),
+        title="Radar Chart for All Countries and Regions",
+        showlegend=True
+    )
 
     st.plotly_chart(fig)
 
