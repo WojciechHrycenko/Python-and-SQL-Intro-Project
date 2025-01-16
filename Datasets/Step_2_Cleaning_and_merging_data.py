@@ -1,6 +1,5 @@
 import pandas as pd
 
-# Wczytaj plik CSV do DataFrame
 df = pd.read_csv('cleaned_big_personalities_dataset.csv', sep=',')
 
 df = df.reset_index(drop=True)

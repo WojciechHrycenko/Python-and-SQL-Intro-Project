@@ -1,6 +1,17 @@
 # Python-and-SQL-Intro-Project
 
-Topic: Psychological Data Visualisation with Simple ChatBot
+Topic: Psychological Data Visualisation
+
+How to run a project:
+To run the project you need to go to "Streamlit" folder and run the following command:
+"python -m streamlit run your_script.py"
+
+Description:
+ - Streamlit_page.py - main file with the code of the project
+ - Variables.py - file with variables describing Questions and Regions used in the project
+ - Data_transfer.py - file with functions used to convert two csv files into sql database tables
+ 
+
 
 Team members:
 - Aliaksandra Labko
@@ -8,12 +19,3 @@ Team members:
 - Dawid Grzesiak
 - Filip Żebrowski
 - Wojciech Hrycenko
-
-Schedule:
-- Project proposal: 31st October - choose the topic and and members of your team (3-4 people), send via email.
-- Presetations: 28th November - Around 5 mins, the presentation needs to include slides with title page (including authors), information on why you chose you topic, how you want to solve the problem, short description of the tools you are going to use and short description of each team member responsibilities.
-- Project delivery: 16th of January - Practical project will be a progam of your design, built with Python and any SQL language.
-- Test: 23rd of January
-
-
-FILIP 

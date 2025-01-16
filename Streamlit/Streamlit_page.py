@@ -2,12 +2,13 @@ import streamlit as st
 import pandas as pd
 import plotly_express as px
 import sqlite3
-from Database_Preparation import q_ids, region_llist
+from Variables import q_ids, region_llist
 import statistics as stat
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from plotly.colors import qualitative
 import matplotlib.pyplot as plt
+
 
 # Connect to SQLite database
 conn = sqlite3.connect('personality_database.db')
@@ -23,14 +24,16 @@ st.title("Big Personalities Analysis")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation - select the data visualisation you want to see")
-page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Questions-Answers distribution across the world",
-                                           "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth Map"))
+page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Questions-Answers Distribution Across the World",
+                                           "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth Map", "Normalized Data Comparison"))
 
 
 # Logic to display content based on the sidebar selection
 if page == "Home":
     st.write("Welcome to the Big Personalities Analysis Tool. Select a page from the sidebar to begin.")
-    st.write("Tutaj chatbot xd")
+
+    st.image("https://miro.medium.com/v2/resize:fit:1400/1*ZLc8umeA7FMlQ3cpUJBS5A.jpeg")
+
 elif page == "Data Overview":
     st.write("Here you can see an overview of the dataset.")
     
@@ -82,21 +85,21 @@ elif page == "Data Overview":
     #### **factors_dataset.csv** and **optimized_questions.csv** were merged using SQLite into a single database, which was utilized in the main and final Python script for the Streamlit page. 
     
     """
-    
+        
     st.markdown(text)
 
 
 # Place to add content to different pages:
 
 # Histogram - Dawid ****************************************************
-elif page == "Questions-Answers distribution across the world":
+elif page == "Questions-Answers Distribution Across the World":
     selected_option = st.selectbox(
-        "Which question's distribution would you like to see?",
+        "Select question?",
         options=q_ids,
         index=0)
 
     selected_region = st.selectbox(
-        "Which region would you like to see?",
+        "Select region?",
         options=region_llist,
         index=0
     )
@@ -515,15 +518,15 @@ elif page == "Normalized Data Comparison":
     means = grouped_factors.mean()
     std_devs = grouped_factors.std()
 
-    # Apply Z-score normalization
+    # Apply Z-score normalization - with help of AI
     standardized_factors = grouped_factors.apply(lambda x: (x - means[x.name]) / std_devs[x.name], axis=0)
 
     # Setting the page elements
     personality_traits = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
 
-    selected_option = st.selectbox("Choose the factor:",options = personality_traits)
+    selected_option = st.selectbox("Choose factor:",options = personality_traits)
 
-    # The graph
+    # The graph - with help of AI
     if selected_option:
         selected_trait_data = standardized_factors[selected_option]
 
@@ -539,19 +542,6 @@ elif page == "Normalized Data Comparison":
         # Display the plot in Streamlit app
         st.pyplot(fig)
 
-        # Plot all personality traits for every country
-        standardized_factors.plot(kind='bar', ax=ax)
-
-        # Title and labels for the plot
-        plt.title('Standardized Personality Factors by Country')
-        plt.xlabel('Country')
-        plt.ylabel('Standardized Score (Z-score)')
-        plt.legend(title='Personality Factors')
-
-        # Display the plot in Streamlit app
-        st.pyplot(fig)
-
 
 # Close the SQLite connection
 conn.close()
-

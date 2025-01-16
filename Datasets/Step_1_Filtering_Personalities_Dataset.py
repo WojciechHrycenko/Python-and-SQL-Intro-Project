@@ -1,9 +1,7 @@
 import pandas as pd
 
-# Wczytaj plik CSV do DataFrame
 df = pd.read_csv('raw_big_personalities_dataset.csv', sep='\t')
 
-# Lista wybranych krajów do uwzględnienia
 selected_countries = [
     'US', 'GB', 'CA', 'AU', 'DE', 'IN', 'PH', 'MX', 'NO', 'NL', 'SE', 'MY', 'NZ', 'ID', 'BR', 'SG', 'FR', 'IT', 'ES', 
     'PL', 'IE', 'FI', 'DK', 'RO', 'CO', 'AR', 'RU', 'ZA', 'BE', 'HK', 'PK', 'TR', 'GR', 'PT', 'CH', 'AE', 'CL', 'AT', 
@@ -22,10 +20,10 @@ columns_to_remove = [
     'OPN6', 'OPN7', 'OPN8', 'OPN9', 'OPN10'
 ]
 df.drop(columns=columns_to_remove, inplace=True)
-# Filtrowanie danych, aby zawierały tylko wybrane kraje
+
 df_filtered = df[(df['country'].isin(selected_countries)) & (df['IPC'] == 1)]
-# Przefiltruj dane, aby zachować maksymalnie 1000 losowo wybranych wierszy dla każdego kraju
+
 df_sampled = df_filtered.groupby('country').apply(lambda x: x.sample(270))
-# Zapisz przefiltrowane dane do nowego pliku CSV
+
 df_sampled.to_csv('cleaned_big_personalities_dataset.csv', index=False)
 print("Nowy plik został utworzony z maksymalnie 285 losowymi wierszami dla każdego wybranego kraju.")
