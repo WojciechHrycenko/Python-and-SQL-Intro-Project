@@ -123,6 +123,7 @@ elif page == "Questions-Answers distribution across the world":
 # ***********************************************
 
 # Radar / Pentagram Chart and Region/Country based histogram - Wojtek and Weronika ***********
+# Code written with help of AI 
 elif page == "Radar Chart of Five Personality Factors":
 
     # Grouping data by Region and Country
@@ -218,10 +219,9 @@ elif page == "Radar Chart of Five Personality Factors":
             selected_row['Intellect/Imagination']
         ]
 
-        # Personalities labels for the radar chart
         personality_labels = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
 
-        # Create a radar chart for the selected data
+        # Creating a radar chart for the selected data
         fig = go.Figure(data=go.Scatterpolar(
             r=personality_values,
             theta=personality_labels,
