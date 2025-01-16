@@ -135,10 +135,10 @@ elif page == "Radar Chart of Five Personality Factors":
 
     # Grouping data by Region and Country
     grouped_data = factors.groupby(["Region", "Country"]).agg({
-        'Extroversion': 'mean',
-        'Emotional Stability': 'mean',
         'Agreeablness': 'mean',
         'Conscientiousness': 'mean',
+        'Emotional Stability': 'mean',
+        'Extroversion': 'mean',       
         'Intellect/Imagination': 'mean'
     }).reset_index()
 
@@ -168,13 +168,13 @@ elif page == "Radar Chart of Five Personality Factors":
         # Loop through all rows of filtered data and plot each country's radar chart
         for index, row in filtered_data.iterrows():
             personality_values = [
-                row['Extroversion'],
-                row['Emotional Stability'],
                 row['Agreeablness'],
                 row['Conscientiousness'],
+                row['Emotional Stability'],
+                row['Extroversion'],
                 row['Intellect/Imagination']
             ]
-            personality_labels = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
+            personality_labels = ['Agreeablness', 'Conscientiousness', 'Emotional Stability', 'Extroversion', 'Intellect/Imagination']
 
             fig.add_trace(go.Scatterpolar(
                 r=personality_values,
@@ -219,14 +219,14 @@ elif page == "Radar Chart of Five Personality Factors":
 
         # Personalities values
         personality_values = [
-            selected_row['Extroversion'],
-            selected_row['Emotional Stability'],
             selected_row['Agreeablness'],
             selected_row['Conscientiousness'],
+            selected_row['Emotional Stability'],
+            selected_row['Extroversion'],
             selected_row['Intellect/Imagination']
         ]
 
-        personality_labels = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
+        personality_labels = ['Agreeablness', 'Conscientiousness', 'Emotional Stability', 'Extroversion', 'Intellect/Imagination']
 
         # Creating a radar chart for the selected data
         fig = go.Figure(data=go.Scatterpolar(
