@@ -487,6 +487,7 @@ elif page == "Choropleth Map":
     
     st.plotly_chart(fig_map)
 
+
 # *********************************************** Normalized data comparison - Dawid
 elif page == "Normalized Data Comparison":
     grouped_factors = factors.groupby("Region")[['Extroversion',
