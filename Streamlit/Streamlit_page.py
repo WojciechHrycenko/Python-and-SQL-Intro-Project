@@ -578,53 +578,6 @@ elif page == "Normalized Data Comparison":
         st.pyplot(fig)
 
 
-# *********************************************** Normalized data comparison - Dawid
-elif page == "Normalized Data Comparison":
-    grouped_factors = factors.groupby("Region")[['Extroversion',
-                                                  'Emotional Stability', 'Agreeablness', 'Conscientiousness',
-                                                  'Intellect/Imagination']].mean()
-    means = grouped_factors.mean()
-    std_devs = grouped_factors.std()
-
-    # Apply Z-score normalization
-    standardized_factors = grouped_factors.apply(lambda x: (x - means[x.name]) / std_devs[x.name], axis=0)
-
-    # Setting the page elements
-    personality_traits = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
-
-    selected_option = st.selectbox("Choose the factor:",options = personality_traits)
-
-    # The graph
-    if selected_option:
-        selected_trait_data = standardized_factors[selected_option]
-
-        # Create the bar plot for the selected trait
-        fig, ax = plt.subplots(figsize=(10, 6))
-        selected_trait_data.plot(kind='bar', ax=ax, color='skyblue')
-
-        # Title and labels for the plot
-        plt.title(f'Standardized Z-Score of {selected_option} by Region')
-        plt.xlabel('Region')
-        plt.ylabel('Standardized Score (Z-score)')
-
-        # Display the plot in Streamlit app
-        st.pyplot(fig)
-
-        # Plot all personality traits for every country
-        standardized_factors.plot(kind='bar', ax=ax)
-
-        # Title and labels for the plot
-        plt.title('Standardized Personality Factors by Country')
-        plt.xlabel('Country')
-        plt.ylabel('Standardized Score (Z-score)')
-        plt.legend(title='Personality Factors')
-
-        # Display the plot in Streamlit app
-        st.pyplot(fig)
-
-
-
-
 # Close the SQLite connection
 conn.close()
 
