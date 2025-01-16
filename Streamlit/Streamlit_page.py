@@ -413,7 +413,7 @@ elif page == "General Comparison":
         # Show the plot
         st.plotly_chart(fig)
 
-# Pie Chart: Structure of Answers - Weronia ****************************************************
+# Pie Chart: Structure of Answers - Weronika ****************************************************
 
         st.subheader("Structure of Answers")
 
