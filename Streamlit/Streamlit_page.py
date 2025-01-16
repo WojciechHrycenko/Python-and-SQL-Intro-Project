@@ -23,8 +23,8 @@ st.title("Big Personalities Analysis")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation - select the data visualisation you want to see")
-page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Questions-Answers distribution across the world",
-                                           "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth Map"))
+page = st.sidebar.radio("Choose a page", ("Home", "Data Overview", "Region or country-based personalities", "Structure of answers", 
+                                          "Questions-Answers distribution across the world", "Radar Chart of Five Personality Factors", "General Comparison", "Choropleth Map", "Normalized Data Comparison"))
 
 
 # Logic to display content based on the sidebar selection
@@ -87,6 +87,100 @@ elif page == "Data Overview":
 
 # Place to add content to different pages:
 
+# Region/country based personalities histogram - Weronika 
+elif page == "Region or country-based personalities":
+# First, we allow the user to choose whether they want to filter by region or country
+    filter_by = st.radio("Select filter type", options=["Filter by Region", "Filter by Country"])
+ # Showing region or country selection based on the user's choice
+    if filter_by == "Filter by Region":
+        region_options = factors['Region'].unique()
+        selected_region = st.selectbox("Choose a region", options=["All regions"] + list(region_options))
+        
+        # Filtering data based on region selection
+        if selected_region == "All regions":
+            filtered_factors = factors
+        else:
+            filtered_factors = factors[factors['Region'] == selected_region]
+
+        # Setting country options based on the region selected
+        country_options = factors[factors['Region'] == selected_region]['Country'].unique()
+        selected_country = None  # Reset country selection
+
+    elif filter_by == "Filter by Country":
+        country_options = factors['Country'].unique()
+        selected_country = st.selectbox("Choose a country", options=["All countries"] + list(country_options))
+
+        # Filtering data based on country selection
+        if selected_country == "All countries":
+            filtered_factors = factors
+        else:
+            filtered_factors = factors[factors['Country'] == selected_country]
+
+        # Settting region options based on the country selected
+        selected_region = None  # Reset region selection
+        region_options = factors[factors['Country'] == selected_country]['Region'].unique()
+            # Calculating the percentage of traits for the filtered data
+    personality_traits = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
+    trait_means = filtered_factors[personality_traits].mean()
+
+    # Creating a bar chart
+    fig = px.bar(
+        x=personality_traits,
+        y=trait_means.values,
+        labels={'x': 'Personality trait', 'y': 'Average score'},
+        title=f"Average personality traits for {selected_country if selected_country else 'all countries'} in {selected_region if selected_region else 'all regions'}"
+    )
+
+    # Showing the chart
+    st.plotly_chart(fig)
+
+# Structure of answers - Weronika
+elif page == "Structure of answers":
+    # Selecting a country
+    country_options = factors['Country'].unique()
+    selected_country = st.selectbox("Choose a country", options=["All countries"] + list(country_options))
+
+    # Mapping features to their prefixes
+    personality_features = {
+        "Extroversion": "EXT",
+        "Emotional Stability": "EST",
+        "Agreeableness": "AGR",
+        "Conscientiousness": "CSN",
+        "Intellect/Imagination": "OPN"
+    }
+
+    # Selecting a personality feature
+    selected_feature = st.selectbox(
+        "Which personality feature would you like to analyze?",
+        options=personality_features.keys()
+    )
+
+    # Getting the prefix for the selected feature
+    feature_prefix = personality_features[selected_feature]
+
+    # Filtering the dataset for the selected country
+    country_data = questions[questions["Country"] == selected_country]
+
+    # Extracting columns corresponding to the selected feature
+    feature_questions = [col for col in country_data.columns if col.startswith(feature_prefix)]
+
+    # Calculate the percentage share of each question's mean score
+    question_means = country_data[feature_questions].mean()
+    total_mean = question_means.sum()
+    percentage_share = (question_means / total_mean) * 100
+
+    # Create a pie chart
+    fig = px.pie(
+        names=question_means.index,  # Question shortcuts (e.g., EXT1, EXT2, etc.)
+        values=percentage_share,  # Percentage share for each question
+        title=f"Percentage share of {selected_feature} questions in {selected_country}"
+    )
+
+    # Display the pie chart
+    st.plotly_chart(fig)
+
+
+
 # Histogram - Dawid ****************************************************
 elif page == "Questions-Answers distribution across the world":
     selected_option = st.selectbox(
@@ -124,8 +218,7 @@ elif page == "Questions-Answers distribution across the world":
     st.plotly_chart(fig)
 # ***********************************************
 
-# Radar / Pentagram Chart and Region/Country based histogram - Wojtek and Weronika ***********
-# Code written with help of AI 
+# Radar / Pentagram Chart - Wojtek ****************************************************
 elif page == "Radar Chart of Five Personality Factors":
 
     # Grouping data by Region and Country
@@ -221,9 +314,10 @@ elif page == "Radar Chart of Five Personality Factors":
             selected_row['Intellect/Imagination']
         ]
 
+        # Personalities labels for the radar chart
         personality_labels = ['Extroversion', 'Emotional Stability', 'Agreeablness', 'Conscientiousness', 'Intellect/Imagination']
 
-        # Creating a radar chart for the selected data
+        # Create a radar chart for the selected data
         fig = go.Figure(data=go.Scatterpolar(
             r=personality_values,
             theta=personality_labels,
@@ -254,19 +348,7 @@ elif page == "Radar Chart of Five Personality Factors":
 
     st.plotly_chart(fig)
 
-  # Creating the bar chart for trait means
-    trait_means = filtered_data[personality_labels].mean()
-    bar_fig = px.bar(
-        x=personality_labels,
-        y=trait_means,
-        labels={'x': 'Personality Trait', 'y': 'Average Score'},
-        title="Average Personality Traits"
-    )
-
-    st.plotly_chart(bar_fig)
-    
-
-# General Comparison and structure of data - Filip and Weronika *********************************
+# GENERAL COMPARISON - Filip ****************************************************
 # Code written with help of AI 
 
 elif page == "General Comparison":
@@ -305,13 +387,13 @@ elif page == "General Comparison":
     if filtered_questions.empty or filtered_factors.empty:
         st.error("No data available for the selected region or country. Please choose different filters.")
     else:
-        # Mean response for each question
+        # mean response for each question
         question_columns = [col for col in filtered_questions.columns if col.startswith(("EXT", "AGR", "CSN", "EST", "OPN"))]
         question_means = filtered_questions[question_columns].mean().reset_index()
         question_means.columns = ["Question", "Mean_Response"]
         question_means["Trait"] = question_means["Question"].str[:3]
 
-        # Mean trait level for each trait
+        # mean trait level for each trait
         trait_means = filtered_factors[[
             "Extroversion", "Emotional Stability", "Agreeablness", 
             "Conscientiousness", "Intellect/Imagination"
@@ -327,7 +409,7 @@ elif page == "General Comparison":
         }
         trait_means["Trait"] = trait_means["Trait"].map(trait_map)
 
-        # Merging trait means with question means
+        # merging trait means with question means
         merged_data = question_means.merge(trait_means, on="Trait")
 
         # Scaling the mean response based on trait level for stacked bar plot purposes
@@ -339,11 +421,11 @@ elif page == "General Comparison":
         merged_data["Contribution"] = (merged_data["Mean_Response"] / merged_data.groupby("Trait")["Mean_Response"].transform("sum")) * merged_data["Trait_Level"]
 
 
-        # Full question text
+        # full question text
         question_map = {q.split(": ")[0]: q.split(": ")[1] for q in q_ids}  #Dictionary comprehensions in q_ids list
         merged_data["Full_Question"] = merged_data["Question"].map(question_map)  
 
-        # Pastel colors for each trait
+        # pastel colors for each trait
         trait_colors = {
             "EXT": qualitative.Pastel1[0],  
             "AGR": qualitative.Pastel1[1],  
@@ -352,7 +434,7 @@ elif page == "General Comparison":
             "OPN": qualitative.Pastel1[4] 
         }
 
-        # Plotting the stacked bar plot
+        # plotting the stacked bar plot
         stacked_bar_data = []
         annotations = []  # list for annotations
         for trait, group in merged_data.groupby("Trait"):
@@ -396,45 +478,9 @@ elif page == "General Comparison":
             showlegend=False
         )
 
-        # Show the plot
+        # show the plot
         st.plotly_chart(fig)
 
-# Pie Chart: Structure of Answers
-
-        st.subheader("Structure of Answers")
-
-        st.markdown("""The pie chart illustrates the percentage contribution of each survey question to the overall score for the 
-        selected personality feature, providing insights into how individual questions contribute to the evaluation 
-        of the trait.""") 
-
-        personality_features = {
-            "Extroversion": "EXT",
-            "Emotional Stability": "EST",
-            "Agreeableness": "AGR",
-            "Conscientiousness": "CSN",
-            "Intellect/Imagination": "OPN"
-        }
-
-        # Personality feature selecion
-        selected_feature = st.selectbox("Choose a Personality Feature", options=personality_features.keys())
-        feature_prefix = personality_features[selected_feature]
-
-        # Identifying the relevant question
-        country_data = filtered_questions if selected_country == "All Countries" else filtered_questions[filtered_questions["Country"] == selected_country]
-        feature_questions = [col for col in country_data.columns if col.startswith(feature_prefix)]
-        question_means = country_data[feature_questions].mean()
-        total_mean = question_means.sum()
-        percentage_share = (question_means / total_mean) * 100
-
-        # Creating the pie chart
-        pie_fig = px.pie(
-            names=question_means.index,
-            values=percentage_share,
-            title=f"Percentage Share of {selected_feature} Questions",
-        )
-
-        # Show the plot
-        st.plotly_chart(pie_fig)
 
 
 # Density map of factors - Sasha ****************************************************
