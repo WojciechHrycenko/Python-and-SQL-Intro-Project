@@ -7,6 +7,7 @@ import statistics as stat
 import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from plotly.colors import qualitative
+import matplotlib.pyplot as plt
 
 # Connect to SQLite database
 conn = sqlite3.connect('personality_database.db')
@@ -530,8 +531,6 @@ elif page == "Normalized Data Comparison":
         # Display the plot in Streamlit app
         st.pyplot(fig)
 
-
-# ***********************************************
 
 # Close the SQLite connection
 conn.close()
